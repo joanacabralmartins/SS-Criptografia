@@ -30,8 +30,9 @@ export const register = async (req: Request, res: Response) => {
 
                 res.status(201).json({ message: 'Usuário cadastrado com sucesso.', newUser });
             }
-        }catch {
-            
+        }catch(error) {
+            console.error('Erro ao cadastrar usuário: ', error);
+            res.status(500).json({ error: 'Erro interno ao processar o registro.' });
         }
         
     }
