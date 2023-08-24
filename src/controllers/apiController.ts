@@ -20,6 +20,15 @@ export const register = async (req: Request, res: Response) => {
             if(!hasUser) {
                 const saltRounds = 10;
                 const hashedPassword = await bcrypt.has(password, saltRounds);
+        
+                let newUser = await User.create({
+                    email,
+                    password: hashedPassword,
+                    name,
+                    discipline
+                })
+
+                res.status(201).json({ message: 'Usuário cadastrado com sucesso.', newUser });
             }
         }catch {
             
