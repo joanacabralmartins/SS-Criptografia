@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { User } from '../models/User';
 import nodemailer, { SendMailOptions } from 'nodemailer';
+import JWT from 'jsonwebtoken'
+const bcrypt = require('bcrypt');
 
 export const ping = (req: Request, res: Response) => {
     res.json({ pong: true });
@@ -12,23 +14,20 @@ export const register = async (req: Request, res: Response) => {
 
     if (email && password && name && discipline) {
 
-        let hasUser = await User.findOne({ where: { email } });
-        if (!hasUser) {
-            let newUser = await User.create({ email, password, name, discipline });
+        try{
+            let hasUser = await User.findOne({ where: { email } });
 
-            res.status(201);
-            return res.json({
-                message: "Usuário cadastradado com sucesso.",
-                newUser
-
-
-            });
-        } else {
-            return res.json({ error: 'E-mail já existe.' });
+            if(!hasUser) {
+                const saltRounds = 10;
+                const hashedPassword = await bcrypt.has(password, saltRounds);
+            }
+        }catch {
+            
         }
+        
     }
 
-    return res.json({ error: 'E-mail e/ou senha não enviados.' });;
+    return res.json({ error: 'E-mail, senha, nome e/ou disciplina não fornecidos.' });
 }
 
 export const login = async (req: Request, res: Response) => {
