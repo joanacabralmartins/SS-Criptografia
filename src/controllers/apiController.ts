@@ -79,37 +79,17 @@ export const forgotPassword = async (req: Request, res: Response) => {
         const user = await User.findOne({ where: { email } });
 
         if (!user) {
-            return res.json({ error: 'Usuário não encontrado.' });
+            return res.status(404).json({ error: 'Usuário não encontrado.' });
         }
 
-        // Configuração do transporte de e-mail usando Nodemailer
-        const transporter = nodemailer.createTransport({
-            host: 'sandbox.smtp.mailtrap.io',
-            port: 2525,
-            auth: {
-                user: '3c06f9dbdde467',
-                pass: 'b338ed92a62e61',
-            },
-        });
+        const randomPassword = Math.random().toString(36).slice(-8);
 
-        // Montando as opções do e-mail
-        const mailOptions = {
-            from: 'seu-email@dominio.com',
-            to: user.email,
-            subject: 'Recuperação de senha',
-            text: `Sua senha é: ${user.password}`, // Enviando a senha do usuário
-        };
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(randomPassword, saltRounds);
 
-        // Enviando o e-mail
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                console.error('Erro ao enviar o e-mail:', error);
-                return res.json({ error: 'Ocorreu um erro ao enviar o e-mail.' });
-            } else {
-                console.log('E-mail enviado:', info.response);
-                return res.json({ message: 'Senha enviada por e-mail.' });
-            }
-        });
+        user.password = hashedPassword;
+        await user.save();
+
     } catch (error) {
         console.error(error);
         return res.json({ error: 'Ocorreu um erro ao processar a solicitação.' });
