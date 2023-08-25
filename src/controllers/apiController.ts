@@ -90,6 +90,22 @@ export const forgotPassword = async (req: Request, res: Response) => {
         user.password = hashedPassword;
         await user.save();
 
+        const transporter = nodemailer.createTransport({
+            host: 'sandbox.smtp.mailtrap.io',
+            port: 2525,
+            auth: {
+                user: '9168143a929d71',
+                pass: 'fb4c67870c9a08',
+            },
+        });
+
+        const mailOptions = {
+            from: 'seu-email@dominio.com',
+            to: email,
+            subject: 'Recuperação de senha',
+            text: `Sua nova senha é: ${randomPassword}`,
+        };
+
     } catch (error) {
         console.error(error);
         return res.json({ error: 'Ocorreu um erro ao processar a solicitação.' });
