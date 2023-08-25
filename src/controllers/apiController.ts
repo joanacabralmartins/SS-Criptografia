@@ -100,11 +100,21 @@ export const forgotPassword = async (req: Request, res: Response) => {
         });
 
         const mailOptions = {
-            from: 'seu-email@dominio.com',
+            from: 'teste@dominio.com',
             to: email,
             subject: 'Recuperação de senha',
             text: `Sua nova senha é: ${randomPassword}`,
         };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if(error) {
+                console.error('Erro ao enviar e-mail: ', error);
+                res.status(500).json({ error: 'Erro ao enviar e-mail de recuperação de senha.' });
+            } else {
+                console.log('E-mail enviado: ', info.response);
+                res.status(200).json({ message: 'Nova senha enviada para o seu e-mail' });
+            }
+        });
 
     } catch (error) {
         console.error(error);
